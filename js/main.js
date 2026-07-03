@@ -1,21 +1,38 @@
 const rewards = [
-  {id:1,title:"커피 데이트권",description:"엄마와 함께 따뜻한 커피 한 잔 하러 가는 날이에요.",icon:"☕"},
-  {id:2,title:"꽃 선물권",description:"엄마에게 어울리는 예쁜 꽃을 선물해드릴게요.",icon:"🌷"},
-  {id:3,title:"맛있는 외식권",description:"엄마가 먹고 싶은 메뉴로 함께 외식하는 날이에요.",icon:"🍽️"},
-  {id:4,title:"디저트 선물권",description:"달콤한 디저트로 기분 좋은 하루를 선물해드릴게요.",icon:"🍰"},
-  {id:5,title:"산책 동행권",description:"엄마와 천천히 걸으며 이야기를 나누는 시간이에요.",icon:"🚶"},
-  {id:6,title:"영화 같이 보기권",description:"엄마가 보고 싶은 영화나 드라마를 함께 보는 날이에요.",icon:"🎬"},
-  {id:7,title:"집안일 대신하기권",description:"오늘은 엄마 대신 집안일 하나를 맡아드릴게요.",icon:"🏠"},
-  {id:8,title:"손마사지권",description:"고생한 엄마의 손을 따뜻하게 쉬게 해드릴게요.",icon:"🤲"},
-  {id:9,title:"사진 찍어드리기권",description:"엄마의 예쁜 오늘을 사진으로 남겨드릴게요.",icon:"📷"},
-  {id:10,title:"엄마 마음대로 하루권",description:"오늘 하루는 엄마가 원하는 대로 함께할게요.",icon:"💝"}
+  {id:1,title:"커피 데이트권",description:"엄마가 좋아하는 카페에서 커피 한 잔 함께하기",icon:"☕"},
+  {id:2,title:"꽃 선물권",description:"엄마에게 어울리는 꽃을 선물해드리기",icon:"🌷"},
+  {id:3,title:"맛있는 외식권",description:"엄마가 먹고 싶은 메뉴로 맛있는 식사 함께하기",icon:"🍽️"},
+  {id:4,title:"디저트 선물권",description:"달달한 디저트로 엄마의 하루를 조금 더 기분 좋게 만들기",icon:"🍰"},
+  {id:5,title:"산책 동행권",description:"엄마와 천천히 걸으며 편하게 이야기 나누기",icon:"🚶"},
+  {id:6,title:"영화 같이 보기권",description:"엄마가 보고 싶은 영화나 드라마를 함께 보기",icon:"🎬"},
+  {id:7,title:"사진 찍어드리기권",description:"엄마의 예쁜 순간을 사진으로 남겨드리기",icon:"📷"},
+  {id:8,title:"엄마 취향 간식권",description:"엄마가 좋아하는 간식이나 먹거리를 사다드리기",icon:"🛍️"},
+  {id:9,title:"도란도란 대화권",description:"엄마 이야기를 천천히 듣고 함께 이야기 나누기",icon:"💬"},
+  {id:10,title:"엄마 부탁 하나권",description:"엄마가 말하는 작은 부탁 하나를 기분 좋게 들어드리기",icon:"🎟️"}
 ];
 
-const KEYS={history:"momGift_selectedHistory",current:"momGift_currentReward",taps:"momGift_easterEggTapCount",easter:"momGift_easterEggOpened"};
+const DATA_VERSION=2;
+const KEYS={history:"momGift_selectedHistory",current:"momGift_currentReward",taps:"momGift_easterEggTapCount",easter:"momGift_easterEggOpened",version:"momGift_dataVersion"};
 const $=(s,root=document)=>root.querySelector(s), $$=(s,root=document)=>[...root.querySelectorAll(s)];
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
 const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
-let currentReward=read(KEYS.current,null), scratchReady=false, scratching=false, points=0, scratchDistance=0, lastScratchPoint=null, revealTimer=null, adminTaps=0, adminTapTimer=null, resetArmed=false;
+
+function migrateStoredRewards(){
+  if(read(KEYS.version,0)===DATA_VERSION)return;
+  const oldHistory=read(KEYS.history,[]),migrated=[],seen=new Set();
+  if(Array.isArray(oldHistory))oldHistory.forEach(item=>{
+    const reward=rewards.find(entry=>entry.title===item?.title);
+    if(reward&&!seen.has(reward.id)){migrated.push({...reward,wonAt:item.wonAt||new Date().toISOString()});seen.add(reward.id)}
+  });
+  write(KEYS.history,migrated);
+  const oldCurrent=read(KEYS.current,null),matchedCurrent=rewards.find(entry=>entry.title===oldCurrent?.title);
+  if(matchedCurrent)write(KEYS.current,matchedCurrent);else localStorage.removeItem(KEYS.current);
+  write(KEYS.version,DATA_VERSION);
+}
+migrateStoredRewards();
+
+const savedCurrent=read(KEYS.current,null);
+let currentReward=rewards.find(reward=>reward.id===savedCurrent?.id)||null, scratchReady=false, scratching=false, points=0, scratchDistance=0, lastScratchPoint=null, revealTimer=null, adminTaps=0, adminTapTimer=null, resetArmed=false;
 
 function go(id){
   $$('.screen').forEach(screen=>screen.classList.toggle('active',screen.id===id));
@@ -26,7 +43,18 @@ function go(id){
   window.scrollTo(0,0);
 }
 
-function history(){return read(KEYS.history,[])}
+function history(){
+  const stored=read(KEYS.history,[]);
+  if(!Array.isArray(stored))return [];
+  const seen=new Set();
+  return stored.map(item=>{
+    const reward=rewards.find(entry=>entry.id===item?.id);
+    if(!reward||seen.has(reward.id))return null;
+    seen.add(reward.id);
+    const wonAt=!Number.isNaN(Date.parse(item.wonAt))?item.wonAt:new Date().toISOString();
+    return {...reward,wonAt};
+  }).filter(Boolean);
+}
 function updateCount(){
   $('#vault-btn').hidden=history().length===0;
 }
@@ -35,7 +63,12 @@ function toast(message){const el=$('#toast');el.textContent=message;el.classList
 $$('[data-go]').forEach(button=>button.addEventListener('click',()=>go(button.dataset.go)));
 $('#start-btn').addEventListener('click',()=>{
   if(history().length>=rewards.length){toast('모든 선물을 확인했어요 🎉');setTimeout(()=>go('vault'),700);return}
-  $('#gift-box').classList.add('opening');setTimeout(()=>{$('#gift-box').classList.remove('opening');go('anticipation')},650);
+  const giftBox=$('#gift-box');
+  giftBox.classList.add('opening');
+  setTimeout(()=>{
+    go('cards');
+    setTimeout(()=>giftBox.classList.remove('opening'),350);
+  },900);
 });
 
 function tapGift(){
@@ -48,9 +81,13 @@ $('#gift-box').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e
 
 $$('.pick-card').forEach(card=>card.addEventListener('click',()=>{
   if(card.classList.contains('selected')) return;
-  const available=rewards.filter(reward=>!history().some(item=>item.id===reward.id));
+  const won=history();
+  const available=rewards.filter(reward=>!won.some(item=>item.id===reward.id));
   if(!available.length){toast('모든 선물을 확인했어요');setTimeout(()=>go('vault'),600);return}
-  currentReward=available[Math.floor(Math.random()*available.length)];write(KEYS.current,currentReward);
+  currentReward=won.length===0
+    ? available.find(reward=>reward.id===7)||available[0]
+    : available[Math.floor(Math.random()*available.length)];
+  write(KEYS.current,currentReward);
   $$('.pick-card').forEach(c=>c.classList.add(c===card?'selected':'dimmed'));
   setTimeout(()=>{$$('.pick-card').forEach(c=>c.classList.remove('selected','dimmed'));go('scratch')},850);
 }));
@@ -108,7 +145,7 @@ $('#capture-btn').addEventListener('click',async()=>{
 
 function renderVault(){
   const won=history(),grid=$('#vault-grid');grid.innerHTML='';
-  $('#vault-summary').textContent=won.length?`${rewards.length}개 중 ${won.length}개의 행운을 만났어요`:'엄마의 선물 보관함이에요';
+  $('#vault-summary').textContent='하나씩 모아둔 엄마 전용 선물함이에요';
   $('#empty-state').hidden=won.length>0;
   rewards.forEach(reward=>{
     const item=won.find(entry=>entry.id===reward.id),button=document.createElement('button');button.className=`vault-item ${item?'unlocked':'locked'}`;
