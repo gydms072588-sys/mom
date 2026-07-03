@@ -15,7 +15,7 @@ const KEYS={history:"momGift_selectedHistory",current:"momGift_currentReward",ta
 const $=(s,root=document)=>root.querySelector(s), $$=(s,root=document)=>[...root.querySelectorAll(s)];
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
 const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
-let currentReward=read(KEYS.current,null), scratchReady=false, scratching=false, points=0, revealTimer=null, adminTaps=0, adminTapTimer=null, resetArmed=false;
+let currentReward=read(KEYS.current,null), scratchReady=false, scratching=false, points=0, scratchDistance=0, lastScratchPoint=null, revealTimer=null, adminTaps=0, adminTapTimer=null, resetArmed=false;
 
 function go(id){
   $$('.screen').forEach(screen=>screen.classList.toggle('active',screen.id===id));
@@ -56,25 +56,28 @@ $$('.pick-card').forEach(card=>card.addEventListener('click',()=>{
 function setupScratch(){
   if(!currentReward){go('intro');return}
   $('#scratch-icon').textContent=currentReward.icon;$('#scratch-name').textContent=currentReward.title;
+  $('.reward-underlay').classList.add('is-blurred');
   const canvas=$('#scratch-canvas'),stage=$('#scratch-stage'),dpr=Math.min(devicePixelRatio||1,2),rect=stage.getBoundingClientRect();
   canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;canvas.style.width=`${rect.width}px`;canvas.style.height=`${rect.height}px`;
   const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
-  const grad=ctx.createLinearGradient(0,0,rect.width,rect.height);grad.addColorStop(0,'#c9c4c0');grad.addColorStop(.5,'#a9a3a0');grad.addColorStop(1,'#cfcac6');ctx.fillStyle=grad;ctx.fillRect(0,0,rect.width,rect.height);
-  ctx.fillStyle='rgba(255,255,255,.78)';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='700 17px Noto Sans KR';ctx.fillText('행운을 긁어보세요 ✦',rect.width/2,rect.height/2);
-  scratchReady=true;points=0;$('#scratch-progress').style.width='0%';canvas.style.opacity='1';
+  const grad=ctx.createLinearGradient(0,0,rect.width,rect.height);grad.addColorStop(0,'#D5E2EE');grad.addColorStop(.52,'#C5D7E7');grad.addColorStop(1,'#B7CCDF');ctx.fillStyle=grad;ctx.fillRect(0,0,rect.width,rect.height);
+  ctx.fillStyle='#FFFFFF';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='700 17px Noto Sans KR';ctx.fillText('여기를 긁어보세요',rect.width/2,rect.height/2);
+  scratchReady=true;points=0;scratchDistance=0;lastScratchPoint=null;canvas.style.opacity='1';
 }
 
 function scratchAt(event){
   if(!scratchReady||!scratching)return;
   const canvas=$('#scratch-canvas'),rect=canvas.getBoundingClientRect(),touch=event.touches?.[0]||event;
   const x=touch.clientX-rect.left,y=touch.clientY-rect.top,ctx=canvas.getContext('2d'),dpr=Math.min(devicePixelRatio||1,2);
-  ctx.save();ctx.scale(dpr,dpr);ctx.globalCompositeOperation='destination-out';ctx.beginPath();ctx.arc(x,y,25,0,Math.PI*2);ctx.fill();ctx.restore();
-  points++;const progress=Math.min(100,points*1.65);$('#scratch-progress').style.width=`${progress}%`;
-  if(progress>=55) reveal();event.preventDefault();
+  ctx.save();ctx.scale(dpr,dpr);ctx.globalCompositeOperation='destination-out';ctx.lineWidth=44;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  if(lastScratchPoint){ctx.moveTo(lastScratchPoint.x,lastScratchPoint.y);ctx.lineTo(x,y);scratchDistance+=Math.hypot(x-lastScratchPoint.x,y-lastScratchPoint.y)}else{ctx.arc(x,y,22,0,Math.PI*2)}
+  ctx.stroke();ctx.fill();ctx.restore();lastScratchPoint={x,y};
+  const requiredDistance=rect.width*4.5,progress=Math.min(100,(scratchDistance/requiredDistance)*100);
+  if(progress>=78) reveal();event.preventDefault();
 }
 const canvas=$('#scratch-canvas');
-canvas.addEventListener('pointerdown',e=>{scratching=true;canvas.setPointerCapture?.(e.pointerId);scratchAt(e)});
-canvas.addEventListener('pointermove',scratchAt);canvas.addEventListener('pointerup',()=>scratching=false);canvas.addEventListener('pointercancel',()=>scratching=false);
+canvas.addEventListener('pointerdown',e=>{scratching=true;lastScratchPoint=null;canvas.setPointerCapture?.(e.pointerId);scratchAt(e)});
+canvas.addEventListener('pointermove',scratchAt);canvas.addEventListener('pointerup',()=>{scratching=false;lastScratchPoint=null});canvas.addEventListener('pointercancel',()=>{scratching=false;lastScratchPoint=null});
 $('#skip-scratch').addEventListener('click',reveal);
 
 function saveWin(){
@@ -83,6 +86,7 @@ function saveWin(){
 }
 function reveal(){
   if(revealTimer)return;scratchReady=false;saveWin();
+  $('.reward-underlay').classList.remove('is-blurred');
   const canvas=$('#scratch-canvas');canvas.style.transition='.65s';canvas.style.opacity='0';
   revealTimer=setTimeout(()=>{revealTimer=null;go('result')},900);
 }
@@ -95,7 +99,7 @@ function showResult(){
 }
 
 $('#capture-btn').addEventListener('click',async()=>{
-  try{await navigator.clipboard.writeText(`${currentReward.title} 당첨!\n${currentReward.description}\n유효기간: 엄마가 원할 때까지`);toast('당첨 내용을 복사했어요. 화면도 캡처해 주세요!')}
+  try{await navigator.clipboard.writeText(`${currentReward.title} 당첨!\n${currentReward.description}`);toast('당첨 내용을 복사했어요. 화면도 캡처해 주세요!')}
   catch{toast('이 화면을 캡처해서 간직해 주세요 📷')}
 });
 

@@ -1,11 +1,200 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#F8EFE5"><meta name="description" content="엄마의 환갑을 축하하는 선물 복권 웹앱"><title>엄마를 위한 선물 복권</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head>
-<body><main class="app-shell" aria-live="polite"><div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
-<section class="screen active intro-screen" id="intro" aria-labelledby="intro-title"><div class="intro-inner"><p class="eyebrow">HAPPY 60TH BIRTHDAY</p><div class="gift-wrap" id="gift-box" role="button" tabindex="0" aria-label="선물 상자 열기"><img src="assets/images/gift-box.png" alt="연핑크 리본으로 장식한 하얀 선물 상자"></div><h1 id="intro-title">행운의 선물이<br><em>도착했어요!</em></h1><p class="subtitle">두근두근, 오늘의 행운을 확인해보세요</p><div class="button-stack"><button class="btn btn-primary" id="start-btn">선물 뽑기 <span>→</span></button><button class="btn btn-ghost" data-go="vault">뽑은 선물 확인하기 <span id="draw-count">0 / 10</span></button></div><p class="tiny-note">상자엔 작은 비밀도 숨어 있어요</p></div></section>
-<section class="screen anticipation-screen" id="anticipation" aria-labelledby="anticipation-title"><button class="close-button" data-go="intro" aria-label="닫기">×</button><div class="anticipation-card"><div class="mini-gift">🎁</div><p class="overline">행운이 기다리고 있어요</p><h2 id="anticipation-title">두근두근</h2><div class="heartbeat"><span></span><span></span><span></span></div><p>어떤 선물이 나올까요?</p><button class="btn btn-primary" data-go="cards">선물 뽑기 <span>→</span></button></div></section>
-<section class="screen cards-screen" id="cards" aria-labelledby="cards-title"><div class="step">STEP 1 · 하나를 골라주세요</div><h2 id="cards-title">마음이 가는 카드를<br>선택해 주세요</h2><p class="subtitle">모두 엄마를 위한 선물이에요</p><div class="card-fan" id="card-fan"><button class="pick-card" data-card="0" aria-label="첫 번째 카드"><span class="card-corner">✦</span><span class="card-medallion">福</span><span class="card-label">FOR MOM</span></button><button class="pick-card featured" data-card="1" aria-label="두 번째 카드"><span class="card-corner">✦</span><span class="card-medallion">♥</span><span class="card-label">FOR MOM</span></button><button class="pick-card" data-card="2" aria-label="세 번째 카드"><span class="card-corner">✦</span><span class="card-medallion">幸</span><span class="card-label">FOR MOM</span></button></div><p class="hint">카드를 살짝 눌러보세요</p></section>
-<section class="screen scratch-screen" id="scratch" aria-labelledby="scratch-title"><div class="step">STEP 2 · 행운을 열어보세요</div><h2 id="scratch-title">오늘의 선물을<br>긁어보세요</h2><div class="scratch-ticket"><div class="ticket-top"><span>엄마의 행운 복권</span><b>NO. 60</b></div><div class="scratch-stage" id="scratch-stage"><div class="reward-underlay"><span id="scratch-icon">🎁</span><strong id="scratch-name">선물</strong><small>축하해요!</small></div><canvas id="scratch-canvas" aria-label="긁어서 선물을 확인하는 영역"></canvas></div><div class="ticket-bottom">유효기간 · 엄마가 원할 때까지</div></div><p class="scratch-guide"><span>☝️</span> 손가락으로 문질러 확인해 주세요</p><div class="progress-track"><i id="scratch-progress"></i></div><button class="text-button" id="skip-scratch">결과 바로 확인하기</button></section>
-<section class="screen result-screen" id="result" aria-labelledby="result-title"><div class="confetti" id="confetti" aria-hidden="true"></div><p class="overline">CONGRATULATIONS</p><h2 id="result-title">당첨!</h2><div class="result-ticket" id="result-ticket"><div class="ticket-stamp">엄마 전용</div><div class="result-icon" id="result-icon">🎁</div><p>오늘의 선물은</p><h3 id="result-name">커피 데이트권</h3><div class="gold-line"></div><p class="result-description" id="result-description"></p><small>유효기간: 엄마가 원할 때까지</small></div><div class="button-stack"><button class="btn btn-primary" id="capture-btn">캡처하기 <span>↓</span></button><button class="btn btn-ghost" data-go="vault">당첨된 복권 확인하기</button></div></section>
-<section class="screen vault-screen" id="vault" aria-labelledby="vault-title"><button class="back-button" data-go="intro" aria-label="처음으로 돌아가기">←</button><p class="overline">MY LUCKY GIFTS</p><h2 id="vault-title" tabindex="0" aria-label="당첨된 선물, 관리자 모드는 열 번 누르세요">당첨된 선물</h2><p class="subtitle" id="vault-summary">엄마의 선물 보관함이에요</p><div class="vault-grid" id="vault-grid"></div><div class="empty-state" id="empty-state" hidden><span>🎁</span><h3>아직 뽑은 선물이 없어요</h3><p>첫 선물을 뽑아볼까요?</p><button class="btn btn-primary" data-go="anticipation">선물 뽑기</button></div><button class="btn btn-ghost vault-home" data-go="intro">처음으로 돌아가기</button></section>
-<section class="screen letter-screen" id="letter" aria-labelledby="letter-title"><div class="family-scene" aria-hidden="true"><div class="person mom">👩<span>엄마</span></div><div class="heart-line">♥</div><div class="person child">🧑<span>우리</span></div></div><div class="letter-paper"><p class="letter-date">사랑하는 엄마에게</p><h2 id="letter-title">엄마, 환갑을<br>진심으로 축하해요.</h2><div class="letter-rule"></div><p>지금까지 고생 많았고<br>앞으로는 더 많이 웃는 날이<br>많았으면 좋겠어요.</p><p>앞으로의 하루하루가<br>늘 당첨처럼 행복하길 바라요.</p><p class="signature">사랑을 가득 담아, 가족이 ♥</p></div><button class="btn btn-primary" data-go="intro">처음으로 돌아가기</button></section></main>
-<div class="modal" id="detail-modal" hidden><div class="modal-backdrop" data-close-modal></div><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="close-button" data-close-modal aria-label="닫기">×</button><div class="modal-icon" id="modal-icon"></div><p class="overline">LUCKY GIFT</p><h3 id="modal-title"></h3><p id="modal-description"></p><dl><div><dt>당첨 날짜</dt><dd id="modal-date"></dd></div><div><dt>유효기간</dt><dd>엄마가 원할 때까지</dd></div></dl></div></div><div class="modal" id="admin-modal" hidden><div class="modal-backdrop" data-close-modal></div><div class="modal-card admin-card" role="dialog" aria-modal="true" aria-labelledby="admin-title"><button class="close-button" data-close-modal aria-label="닫기">×</button><p class="overline">ADMIN MODE</p><h3 id="admin-title">선물 관리</h3><p class="admin-summary" id="admin-summary"></p><div class="admin-gift-list" id="admin-gift-list"></div><div class="admin-actions"><button class="btn btn-ghost" data-close-modal>닫기</button><button class="btn admin-reset" id="admin-reset">전체 초기화</button></div><p class="admin-warning" id="admin-warning" hidden>한 번 더 누르면 모든 당첨 기록이 삭제됩니다.</p></div></div><div class="toast" id="toast" role="status"></div><script src="js/main.js"></script></body></html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#F8EFE5">
+    <meta name="description" content="엄마의 환갑을 축하하는 선물 복권 웹앱">
+    <title>엄마를 위한 선물 복권</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <main class="app-shell" aria-live="polite">
+      <div class="ambient ambient-one">
+      </div>
+      <div class="ambient ambient-two">
+      </div>
+      <!-- Intro -->
+      <section class="screen active intro-screen" id="intro" aria-labelledby="intro-title">
+        <div class="intro-inner">
+          <p class="eyebrow">HAPPY 60TH BIRTHDAY</p>
+          <div class="gift-wrap" id="gift-box" role="button" tabindex="0" aria-label="선물 상자 열기">
+            <img src="assets/images/gift-box.png" alt="연핑크 리본으로 장식한 하얀 선물 상자">
+          </div>
+          <h1 id="intro-title">행운의 선물이<br>
+            <em>도착했어요!</em>
+          </h1>
+          <p class="subtitle">두근두근, 오늘의 행운을 확인해보세요</p>
+          <div class="button-stack">
+            <button class="btn btn-primary" id="start-btn">선물 뽑기</button>
+            <button class="btn btn-ghost" data-go="vault">뽑은 선물 확인하기 <span id="draw-count">0 / 10</span>
+            </button>
+          </div>
+          <p class="tiny-note">상자엔 작은 비밀도 숨어 있어요</p>
+        </div>
+      </section>
+      <!-- Anticipation -->
+      <section class="screen anticipation-screen" id="anticipation" aria-labelledby="anticipation-title">
+        <button class="close-button" data-go="intro" aria-label="닫기">×</button>
+        <div class="anticipation-card">
+          <div class="mini-gift">🎁</div>
+          <p class="overline">행운이 기다리고 있어요</p>
+          <h2 id="anticipation-title">두근두근</h2>
+          <div class="heartbeat">
+            <span>
+            </span>
+            <span>
+            </span>
+            <span>
+            </span>
+          </div>
+          <p>어떤 선물이 나올까요?</p>
+          <button class="btn btn-primary" data-go="cards">선물 뽑기</button>
+        </div>
+      </section>
+      <!-- Gift card selection -->
+      <section class="screen cards-screen" id="cards" aria-labelledby="cards-title">
+        <div class="step">엄마를 위한 마음을 담아</div>
+        <h2 id="cards-title">행운 복권을 골라주세요</h2>
+        <p class="subtitle">어떤 카드를 골라도 엄마를 위한 선물이에요</p>
+        <div class="card-fan" id="card-fan">
+          <button class="pick-card" data-card="0" aria-label="기쁨 선물 카드">
+            <span class="card-medallion">🎀</span>
+            <span class="card-label">기쁨 선물</span>
+          </button>
+          <button class="pick-card featured" data-card="1" aria-label="행복 선물 카드">
+            <span class="card-medallion">🌷</span>
+            <span class="card-label">행복 선물</span>
+          </button>
+          <button class="pick-card" data-card="2" aria-label="사랑 선물 카드">
+            <span class="card-medallion">💝</span>
+            <span class="card-label">사랑 선물</span>
+          </button>
+        </div>
+        <p class="hint">마음이 가는 카드를 가볍게 눌러주세요</p>
+      </section>
+      <!-- Scratch lottery -->
+      <section class="screen scratch-screen" id="scratch" aria-labelledby="scratch-title">
+        <h2 id="scratch-title">오늘의 선물을<br>긁어보세요</h2>
+        <div class="scratch-ticket">
+          <div class="scratch-stage" id="scratch-stage">
+            <div class="reward-underlay is-blurred">
+              <span id="scratch-icon">🎁</span>
+              <strong id="scratch-name">선물</strong>
+              <small>축하해요!</small>
+            </div>
+            <canvas id="scratch-canvas" aria-label="긁어서 선물을 확인하는 영역">
+            </canvas>
+          </div>
+        </div>
+        <p class="scratch-guide">
+          <span>☝️</span> 손가락으로 문질러 확인해 주세요</p>
+            <button class="text-button" id="skip-scratch">결과 바로 확인하기</button>
+          </section>
+      <!-- Result -->
+      <section class="screen result-screen" id="result" aria-labelledby="result-title">
+            <div class="confetti" id="confetti" aria-hidden="true">
+            </div>
+            <p class="overline">CONGRATULATIONS</p>
+            <h2 id="result-title">당첨!</h2>
+            <div class="result-ticket" id="result-ticket">
+              <div class="ticket-stamp">엄마 전용</div>
+              <div class="result-icon" id="result-icon">🎁</div>
+              <p>오늘의 선물은</p>
+              <h3 id="result-name">커피 데이트권</h3>
+              <div class="gold-line">
+              </div>
+              <p class="result-description" id="result-description">
+              </p>
+            </div>
+            <div class="button-stack">
+              <button class="btn btn-primary" id="capture-btn">캡처하기</button>
+              <button class="btn btn-ghost" data-go="vault">당첨된 복권 확인하기</button>
+            </div>
+          </section>
+      <!-- Gift vault -->
+      <section class="screen vault-screen" id="vault" aria-labelledby="vault-title">
+            <p class="overline">MY LUCKY GIFTS</p>
+            <h2 id="vault-title" tabindex="0" aria-label="당첨된 선물, 관리자 모드는 열 번 누르세요">당첨된 선물</h2>
+            <p class="subtitle" id="vault-summary">엄마의 선물 보관함이에요</p>
+            <div class="vault-grid" id="vault-grid">
+            </div>
+            <div class="empty-state" id="empty-state" hidden>
+              <span>🎁</span>
+              <h3>아직 뽑은 선물이 없어요</h3>
+              <p>첫 선물을 뽑아볼까요?</p>
+              <button class="btn btn-primary" data-go="anticipation">선물 뽑기</button>
+            </div>
+            <button class="btn btn-ghost vault-home" data-go="intro">처음으로 돌아가기</button>
+          </section>
+      <!-- Hidden family letter -->
+      <section class="screen letter-screen" id="letter" aria-labelledby="letter-title">
+            <div class="family-scene" aria-hidden="true">
+              <div class="person mom">👩<span>엄마</span>
+              </div>
+              <div class="heart-line">♥</div>
+              <div class="person child">🧑<span>우리</span>
+              </div>
+            </div>
+            <div class="letter-paper">
+              <p class="letter-date">사랑하는 엄마에게</p>
+              <h2 id="letter-title">엄마, 환갑을<br>진심으로 축하해요.</h2>
+              <div class="letter-rule">
+              </div>
+              <p>지금까지 고생 많았고<br>앞으로는 더 많이 웃는 날이<br>많았으면 좋겠어요.</p>
+              <p>앞으로의 하루하루가<br>늘 당첨처럼 행복하길 바라요.</p>
+              <p class="signature">사랑을 가득 담아, 가족이 ♥</p>
+            </div>
+            <button class="btn btn-primary" data-go="intro">처음으로 돌아가기</button>
+          </section>
+        </main>
+    <!-- Gift detail modal -->
+    <div class="modal" id="detail-modal" hidden>
+          <div class="modal-backdrop" data-close-modal>
+          </div>
+          <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <button class="close-button" data-close-modal aria-label="닫기">×</button>
+            <div class="modal-icon" id="modal-icon">
+            </div>
+            <p class="overline">LUCKY GIFT</p>
+            <h3 id="modal-title">
+            </h3>
+            <p id="modal-description">
+            </p>
+            <dl>
+              <div>
+                <dt>당첨 날짜</dt>
+                <dd id="modal-date">
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+    <!-- Admin modal -->
+    <div class="modal" id="admin-modal" hidden>
+          <div class="modal-backdrop" data-close-modal>
+          </div>
+          <div class="modal-card admin-card" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+            <button class="close-button" data-close-modal aria-label="닫기">×</button>
+            <p class="overline">ADMIN MODE</p>
+            <h3 id="admin-title">선물 관리</h3>
+            <p class="admin-summary" id="admin-summary">
+            </p>
+            <div class="admin-gift-list" id="admin-gift-list">
+            </div>
+            <div class="admin-actions">
+              <button class="btn btn-ghost" data-close-modal>닫기</button>
+              <button class="btn admin-reset" id="admin-reset">전체 초기화</button>
+            </div>
+            <p class="admin-warning" id="admin-warning" hidden>한 번 더 누르면 모든 당첨 기록이 삭제됩니다.</p>
+          </div>
+        </div>
+        <div class="toast" id="toast" role="status">
+        </div>
+        <script src="js/main.js">
+        </script>
+      </body>
+    </html>
