@@ -24,6 +24,9 @@ button {
   font:inherit;
   color:inherit
 }
+.btn[hidden] {
+  display:none
+}
 /* App shell and shared screens */
 .app-shell {
   position:relative;
@@ -1193,11 +1196,6 @@ html,body {
   padding-right:66px;
   justify-content:center;
   text-align:center
-}
-.intro-screen .btn-ghost #draw-count {
-  position:absolute;
-  right:20px;
-  margin-left:0
 }
 .anticipation-card>*+* {
   margin-top:14px

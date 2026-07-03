@@ -27,7 +27,9 @@ function go(id){
 }
 
 function history(){return read(KEYS.history,[])}
-function updateCount(){ $('#draw-count').textContent=`${history().length} / ${rewards.length}`; }
+function updateCount(){
+  $('#vault-btn').hidden=history().length===0;
+}
 function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(el.timer);el.timer=setTimeout(()=>el.classList.remove('show'),2200)}
 
 $$('[data-go]').forEach(button=>button.addEventListener('click',()=>go(button.dataset.go)));
@@ -83,6 +85,7 @@ $('#skip-scratch').addEventListener('click',reveal);
 function saveWin(){
   if(!currentReward)return;
   const items=history();if(!items.some(item=>item.id===currentReward.id)){items.push({...currentReward,wonAt:new Date().toISOString()});write(KEYS.history,items)}
+  updateCount();
 }
 function reveal(){
   if(revealTimer)return;scratchReady=false;saveWin();
